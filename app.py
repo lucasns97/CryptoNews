@@ -4,7 +4,6 @@ import boto3
 import requests
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from dotenv import load_dotenv
-from rich import print
 from datetime import datetime
 import random
 from openai import OpenAI
@@ -17,7 +16,7 @@ if os.getenv('AWS_EXECUTION_ENV') is None:
 NEWS_API_URL = "https://newsapi.org/v2/everything"
 NEWS_API_KEY = os.getenv('NEWS_API_KEY')  # API Key for NewsAPI
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # API Key for OpenAI
-CRYPTO_NAME = "bitcoin"
+CRYPTO_NAME = os.getenv('CRYPTO_NAME')  # Name of the cryptocurrency to analyze
 ALERT_EMAIL = os.getenv('ALERT_EMAIL')  # Your email to receive alerts
 
 # Initialize SES client
@@ -65,7 +64,7 @@ def analyze_news_with_llm(news_articles):
     def generate_prompt(news_articles, crypto_name):
         """Generates a prompt for the LLM based on news articles."""
         prompt = f"Act as a cryptocurrency specialist and analyze the following news articles about {crypto_name} and determine if the market sentiment indicates a price drop.\n\n"
-        prompt += f"Then, answer using the exact following JSON pattern:\n\n```json\n{{\"Reasoning\": \"[explanation]\", \"MarketDrop\": [true/false]}}\n```\n\n"
+        prompt += f"Then, answer using the exact following JSON pattern:\n\n```json\n{{\"Reasoning\": \"[explanation]\", \"ValueWillDrop\": [true/false]}}\n```\n\n"
         prompt += "DATA:\n\"\"\"\n"
         for article in news_articles:
             prompt += f"- Title: {article['title']}\n  Description: {article['description']}\n\n"
@@ -100,12 +99,13 @@ def analyze_news_with_llm(news_articles):
     parsed_response = parse_response(response)
     return parsed_response
 
-def send_email_alert():
-    """Sends an alert email using Amazon SES."""
+def send_email_alert(justification):
+    """Sends an alert email using Amazon SES with the model's justification."""
     subject = f"Alert: Potential {CRYPTO_NAME} Market Drop Detected"
     body = (
         f"Based on the latest news, the sentiment analysis suggests a possible drop in {CRYPTO_NAME} market value.\n"
-        "Consider reviewing the news and market trends immediately."
+        "Consider reviewing the news and market trends immediately.\n\n"
+        f"Justification:\n{justification}"
     )
     try:
         response = ses_client.send_email(
@@ -129,23 +129,20 @@ def lambda_handler(event, context):
             print("No news articles found.")
             return {"statusCode": 200, "body": "No news articles available."}
 
-        market_down = analyze_news_with_llm(news_articles)
+        # Select articles
+        filtered_articles = random_select_news(news_articles, 15)
+        
+        # Analyze news articles
+        analysis = analyze_news_with_llm(filtered_articles)
 
-        if market_down:
-            send_email_alert()
-            return {"statusCode": 200, "body": "Alert email sent."}
+        if analysis.get("ValueWillDrop", False):
+            send_email_alert(analysis.get("Reasoning", "No reasoning provided."))
+            return {"statusCode": 200, "body": "Alert email sent.", "Analysis": analysis}
         else:
             return {"statusCode": 200, "body": "No market drop detected."}
     except Exception as e:
         print(f"Error: {e}")
         return {"statusCode": 500, "body": str(e)}
 
-
 if __name__ == "__main__":
-    # lambda_handler({}, None)
-    news = fetch_crypto_news(CRYPTO_NAME)
-    store_news_articles(news, CRYPTO_NAME)
-    
-    # Analyze news articles
-    analysis = analyze_news_with_llm(random_select_news(news, 5))
-    print(analysis)
+    print(lambda_handler(None, None))
