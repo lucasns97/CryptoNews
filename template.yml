@@ -42,6 +42,7 @@ Resources:
           NEWS_API_KEY: !Ref NewsApiKeyParam
           OPENAI_API_KEY: !Ref OpenAiApiKeyParam
           ALERT_EMAIL: !Ref AlertEmailParam
+          CRYPTO_NAME: !Ref CryptoNameParam
       Policies:
         # SAM will create a role with these managed policies:
         - AWSLambdaBasicExecutionRole     # Allows writing logs to CloudWatch
