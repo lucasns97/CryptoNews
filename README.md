@@ -19,6 +19,10 @@ template.yml
 2. **Analyze News**: The news articles are analyzed using OpenAI's GPT model to determine the market sentiment.
 3. **Send Alert**: If the analysis indicates a potential market drop, an alert email is sent using Amazon SES.
 
+**Template**
+
+![Crypto News Alert Lambda](crypto-news.drawio.png)
+
 ## Prerequisites
 
 - AWS Account
