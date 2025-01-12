@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Deploy a Lambda function (from app.py) that fetches and analyzes crypto news,
+  then sends an SES alert if the sentiment indicates a market drop.
+
+Parameters:
+  NewsApiKeyParam:
+    Type: String
+    Description: 'Your NewsAPI.org key'
+    NoEcho: true
+
+  OpenAiApiKeyParam:
+    Type: String
+    Description: 'Your OpenAI API key'
+    NoEcho: true
+
+  AlertEmailParam:
+    Type: String
+    Description: 'Email address to send market-drop alerts'
+
+  CryptoNameParam:
+    Type: String
+    Description: 'Name of the cryptocurrency to monitor'
+    Default: 'Bitcoin'
+
+Resources:
+  ##########################################
+  # Lambda Function
+  ##########################################
+  CryptoNewsLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CryptoNewsAlertLambda
+      Description: Fetches crypto news and sends alert if negative sentiment is detected
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      CodeUri: .
+      Timeout: 60  # Adjust as needed
+      Environment:
+        Variables:
+          NEWS_API_KEY: !Ref NewsApiKeyParam
+          OPENAI_API_KEY: !Ref OpenAiApiKeyParam
+          ALERT_EMAIL: !Ref AlertEmailParam
+      Policies:
+        # SAM will create a role with these managed policies:
+        - AWSLambdaBasicExecutionRole     # Allows writing logs to CloudWatch
+        - AmazonSESFullAccess             # Allows sending email via SES
+        # Add more policies if needed (e.g. S3, DynamoDB, etc.)
+
+      Events:
+        # Schedule event to run once a day (adjust 'rate' as needed)
+        DailyTrigger:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 day)
+
+Outputs:
+  LambdaFunctionName:
+    Description: 'Name of the deployed Lambda function'
+    Value: !Ref CryptoNewsLambda
+
+  LambdaFunctionArn:
+    Description: 'ARN of the deployed Lambda function'
+    Value: !GetAtt CryptoNewsLambda.Arn
