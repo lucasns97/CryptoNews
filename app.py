@@ -31,7 +31,8 @@ def fetch_crypto_news(crypto_name):
         'language': 'en',
         'sortBy': 'relevance',
     }
-    response = requests.get(NEWS_API_URL, params=params)
+    url = f"{NEWS_API_URL}?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
+    response = requests.get(url)
     response.raise_for_status()
     return response.json().get('articles', [])
 
@@ -64,7 +65,7 @@ def analyze_news_with_llm(news_articles):
     def generate_prompt(news_articles, crypto_name):
         """Generates a prompt for the LLM based on news articles."""
         prompt = f"Act as a cryptocurrency specialist and analyze the following news articles about {crypto_name} and determine if the market sentiment indicates a price drop.\n\n"
-        prompt += f"Then, answer using the exact following JSON pattern:\n\n```json\n{{\"Reasoning\": \"[explanation]\", \"ValueWillDrop\": [true/false]}}\n```\n\n"
+        prompt += f"Then, answer using the exact following JSON pattern:\n\n```json\n{{\"Reasoning\": \"[explanation with quotes]\", \"ValueWillDrop\": [true/false]}}\n```\n\n"
         prompt += "DATA:\n\"\"\"\n"
         for article in news_articles:
             prompt += f"- Title: {article['title']}\n  Description: {article['description']}\n\n"
@@ -130,16 +131,16 @@ def lambda_handler(event, context):
             return {"statusCode": 200, "body": "No news articles available."}
 
         # Select articles
-        filtered_articles = random_select_news(news_articles, 15)
+        filtered_articles = random_select_news(news_articles, 30)
         
         # Analyze news articles
         analysis = analyze_news_with_llm(filtered_articles)
 
         if analysis.get("ValueWillDrop", False):
             send_email_alert(analysis.get("Reasoning", "No reasoning provided."))
-            return {"statusCode": 200, "body": "Alert email sent.", "Analysis": analysis}
+            return {"statusCode": 200, "body": "Alert email sent.", "analysis": analysis}
         else:
-            return {"statusCode": 200, "body": "No market drop detected."}
+            return {"statusCode": 200, "body": "No market drop detected.", "analysis": analysis}
     except Exception as e:
         print(f"Error: {e}")
         return {"statusCode": 500, "body": str(e)}
