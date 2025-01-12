@@ -172,3 +172,5 @@ cython_debug/
 
 # Data folder
 data/
+.aws-sam
+samconfig.toml
