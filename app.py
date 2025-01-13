@@ -68,7 +68,7 @@ def analyze_news_with_llm(news_articles):
         prompt += f"Then, answer using the exact following JSON pattern:\n\n```json\n{{\"Reasoning\": \"[explanation with quotes]\", \"ValueWillDrop\": [true/false]}}\n```\n\n"
         prompt += "DATA:\n\"\"\"\n"
         for article in news_articles:
-            prompt += f"- Title: {article['title']}\n  Description: {article['description']}\n\n"
+            prompt += f"- Title: {article['title']}\n  Description: {article['description']}\n  Content: {article['content']}\n\n"
         prompt += "\"\"\""
         return prompt
     
