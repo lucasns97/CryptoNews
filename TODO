@@ -2,3 +2,5 @@
 - Optimize performance of data processing in news.py
 - Update documentation for all modules
 - Implement logging for debugging and monitoring
+- Add values of actual drop of value of crypto
+- Add number of news that were analysed to the email
