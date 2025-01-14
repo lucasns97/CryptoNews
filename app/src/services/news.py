@@ -6,10 +6,11 @@ This module provides functionality to fetch news articles using the News API.
 """
 
 import requests
-from utils import CONFIG
+from src.utils.config import CONFIG
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from typing import List
+from typing import Optional
 
 ###########
 # Classes #
@@ -21,11 +22,11 @@ class Article:
     title: str
     description: str
     content: str
-    url: str
-    source: dict
-    author: str
     publishedAt: str
-    urlToImage: str
+    url: Optional[str] = None
+    source: Optional[dict] = None
+    author: Optional[str] = None
+    urlToImage: Optional[str] = None
 
 ###########
 # Methods #

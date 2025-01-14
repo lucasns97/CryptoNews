@@ -6,7 +6,7 @@ This module provides functionality to send an email alert using Amazon SES.
 
 import boto3
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError
-from utils import CONFIG
+from src.utils.config import CONFIG
 
 # Initialize SES client
 ses_client = boto3.client('ses', region_name='us-east-1')
