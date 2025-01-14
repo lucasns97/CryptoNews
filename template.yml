@@ -33,9 +33,9 @@ Resources:
     Properties:
       FunctionName: CryptoNewsAlertLambda
       Description: Fetches crypto news and sends alert if negative sentiment is detected
-      Handler: app.lambda_handler
+      Handler: lambda_function.lambda_handler
       Runtime: python3.9
-      CodeUri: .
+      CodeUri: app
       Timeout: 60  # Adjust as needed
       Environment:
         Variables:
