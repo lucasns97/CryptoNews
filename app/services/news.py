@@ -1,4 +1,10 @@
 
+"""
+news.py
+
+This module provides functionality to fetch news articles using the News API.
+"""
+
 import requests
 from utils import CONFIG
 from datetime import datetime, timedelta
