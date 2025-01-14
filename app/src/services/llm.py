@@ -8,8 +8,8 @@ sentiment of the articles.
 
 import json
 from openai import OpenAI
-from utils import CONFIG
-from services.news import Article
+from src.utils.config import CONFIG
+from src.services.news import Article
 from typing import List
 
 # Instantiate the OpenAI client with the provided API key from configuration

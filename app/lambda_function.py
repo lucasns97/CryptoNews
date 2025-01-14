@@ -1,7 +1,7 @@
-from utils import CONFIG
-from services.news import fetch_articles
-from services.llm import analyze_news_with_llm
-from services.email import send_email_alert
+from src.utils.config import CONFIG
+from src.services.news import fetch_articles
+from src.services.llm import analyze_news_with_llm
+from src.services.email import send_email_alert
 from datetime import datetime
 
 def lambda_handler(event: dict, context: dict) -> dict:
