@@ -10,6 +10,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Make the secret available as an environment variable
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+      SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+      CRYPTO_NAME: ${{ secrets.CRYPTO_NAME }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
